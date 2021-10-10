@@ -18,8 +18,8 @@ import java.util.Optional;
 public class UserProfileService {
 	
 //	@Autowired AccountService accountService;
-//	@Autowired UserProfileRepository userProfileRepository;
-//
+	@Autowired UserProfileRepository userProfileRepository;
+
 //	public Mono<UserProfile> deleteExchangeAccount(UserProfile userProfile, String exchange ) {
 //
 //		Optional<ExchangeAccount> exchangeAccount = userProfile.getExchangeAccounts()

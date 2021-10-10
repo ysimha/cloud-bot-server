@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 import ys.cloud.sbot.exceptions.ConflictException;
 import ys.cloud.sbot.exceptions.ResourceExistException;
 import ys.cloud.sbot.users.profile.UserProfile;
-import ys.cloud.sbot.users.profile.UserProfileRepository;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -21,11 +20,9 @@ import java.util.Arrays;
 public class AuthController extends UsersBase{
 
     final private PasswordEncoder passwordEncoder;
-    final private UserProfileRepository userProfileRepository;
 
-    public AuthController(PasswordEncoder passwordEncoder, UserProfileRepository userProfileRepository) {
+    public AuthController(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
-        this.userProfileRepository = userProfileRepository;
     }
 
     @GetMapping("/user")
