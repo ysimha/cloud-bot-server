@@ -6,7 +6,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import ys.cloud.sbot.encryption.ExHelper;
+import org.springframework.context.annotation.Profile;
+import ys.cloud.sbot.exchange.ExHelper;
 
 import java.util.Arrays;
 
@@ -25,7 +26,7 @@ public class SignalCloudBotApplication {
 	}
 
 	@Bean
-//	@Profile("!test")
+	@Profile("!test")
 	public CommandLineRunner commandLineRunner(ApplicationContext context){ return args -> {
 		log.info("---- could bot application start with args: "+ Arrays.toString(args));
 		//	ExHelper.init("x@x~X55X66x3.14x~X@X");

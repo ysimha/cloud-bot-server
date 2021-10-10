@@ -1,6 +1,8 @@
-package ys.cloud.sbot.encryption;
+package ys.cloud.sbot.exchange;
 
 import org.jasypt.util.text.BasicTextEncryptor;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExHelper {
 
@@ -10,9 +12,9 @@ public class ExHelper {
 //	encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
 	
 	private static BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-	
-	public static String set(String str) {
+	private static AtomicBoolean initialize = new AtomicBoolean(false);
 
+	public static String set(String str) {
 		return textEncryptor.encrypt(str);
 	}
 
@@ -21,6 +23,10 @@ public class ExHelper {
 	}
 	
 	public static void init(String str) {
-		textEncryptor.setPassword(str);
+		synchronized (ExHelper.class){
+			if (initialize.get()) return;
+			textEncryptor.setPassword(str);
+			initialize.set(true);
+		}
 	}
 }

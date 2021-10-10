@@ -11,10 +11,8 @@ import ys.cloud.sbot.users.profile.UserProfileRepository;
 
 public class UsersBase {
 
-    @Autowired
-    protected UserRepository userRepository;
-    @Autowired
-    UserProfileRepository userProfileRepository;
+    @Autowired UserRepository userRepository;
+    @Autowired UserProfileRepository userProfileRepository;
 
     public Mono<User> getUser(UsernamePasswordAuthenticationToken principal) {
         try {

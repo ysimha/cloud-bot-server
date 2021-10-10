@@ -56,6 +56,7 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.GET, "/auth/logout").permitAll()
                 .pathMatchers(HttpMethod.GET, "/profile").authenticated()
                 .pathMatchers(HttpMethod.POST, "/profile/excattc").authenticated()
+                .pathMatchers(HttpMethod.DELETE, "/profile/excattc/*").authenticated()
 
                 .pathMatchers(HttpMethod.GET, "/bot/config/**").authenticated()
                 .pathMatchers(HttpMethod.PUT, "/bot/config/**").authenticated()

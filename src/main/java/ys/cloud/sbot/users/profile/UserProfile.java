@@ -1,8 +1,6 @@
 package ys.cloud.sbot.users.profile;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ys.cloud.sbot.config.Username;
@@ -15,6 +13,8 @@ import java.util.List;
 @ToString
 @Builder
 @Document
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserProfile {
 
     @Id
