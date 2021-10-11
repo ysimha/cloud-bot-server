@@ -15,7 +15,7 @@ public class PriceDataService {
     BinancePriceData binancePriceData;
 
     static PriceData dollar = PriceData.builder().symbol("USD").perc24Change(0.0).volume(0.0)
-            .price(1.0).name("USD").dateTime(LocalDateTime.now()).build();
+            .price(1.0).name("USD").dateTime(LocalDateTime.of(1999,1,1,0,0)).build();
 
     public PriceData getPriceData(String id, String exchange){
         return getApiService(exchange).getPriceData(id);
@@ -30,6 +30,8 @@ public class PriceDataService {
     Map<String, PriceData> getAll(String exchange){
         return getApiService(exchange).getAll();
     }
+
+//    Map<String, PriceData> getAll(String exchange);
 
     private PriceApi getApiService(String exchange) {
         switch (exchange.toUpperCase()) {

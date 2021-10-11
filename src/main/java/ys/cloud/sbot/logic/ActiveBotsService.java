@@ -24,7 +24,7 @@ public class ActiveBotsService {
 	@Autowired BotInitializer 				botInitializer;
 	@Autowired BotMaintenance				botMaintenance;
 	@Autowired BotStopLoss					botStopLoss;
-    	@Autowired BotTerminator                botTerminator;
+	@Autowired BotTerminator                botTerminator;
 	@Autowired BinanceTickerService 		tickerService;
 
 	public void onSignal(Signal signal) {

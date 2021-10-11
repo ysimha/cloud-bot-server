@@ -7,6 +7,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -29,8 +30,7 @@ public class HttpBinance {
     public static final String MY_TRADES_URL = BASE_URL +"v3/myTrades" ;
 
 	public static final String EXCHANGE_INFO =  BASE_URL +"v3/exchangeInfo";
-    public static final String CANDLESTICK = BASE_URL +"v1/klines";
-//    public static final String ORDER_BOOK = BASE_URL +"v1/depth";
+    public static final String CANDLESTICK = BASE_URL +"v3/klines";
     public static final String PRICE = BASE_URL +"v3/ticker/price";
     public static final String BOOK_TICKER = BASE_URL +"v3/ticker/bookTicker";
     
@@ -65,10 +65,19 @@ public class HttpBinance {
 			    String query = buildUriParams(params);
 			    url = url.concat("?").concat(query);
 			}
-			return  WebClient.create(url)
-			        .get()
-			        .header("Content-Type", "application/x-www-form-urlencoded")
-			        .retrieve();
+
+//		had to increase default buffer size due to
+//		exception is org.springframework.core.io.buffer.DataBufferLimitException: Exceeded limit on max bytes to buffer : 104857
+//		when calling https://api.binance.com/api/v3/exchangeInfo
+			WebClient webClient = WebClient.builder()
+					.exchangeStrategies(ExchangeStrategies.builder()
+					.codecs(conf -> conf.defaultCodecs()
+							.maxInMemorySize( 1024 * 1024 * 4 ))
+					.build()).baseUrl(url).build();
+
+			return webClient.get()
+					.header("Content-Type", "application/x-www-form-urlencoded")
+					.retrieve();
 	}
     
     private ResponseSpec postResponseSpec(String url, Map<String, String> params, String key, String secret) {

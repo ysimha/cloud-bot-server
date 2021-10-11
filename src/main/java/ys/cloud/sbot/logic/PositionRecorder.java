@@ -97,7 +97,4 @@ public class PositionRecorder {
 	private double calcTotalAmount( List<TradeRecord> trades) {
 		return trades.stream().mapToDouble(t-> t.getPrice() * t.getQty()).sum();
 	}
-	
-	
-	
 }

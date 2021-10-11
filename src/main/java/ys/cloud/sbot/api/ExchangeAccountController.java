@@ -17,7 +17,7 @@ import ys.cloud.sbot.users.profile.UserProfileRepository;
 
 @RestController
 @RequestMapping("/exchange/account")
-public class ExchangeAccountConttroller extends UsersBase {
+public class ExchangeAccountController extends UsersBase {
 
     @Autowired
     UserProfileRepository userProfileRepository;

@@ -20,7 +20,6 @@ public class PublicService  {
 	public Mono<ChartData[]> chartData(String exchange,String symbol, String interval){
 		return getApiService(exchange).chartData(symbol,interval);
 	}
-
 	public Mono<BookTicker[]> getBookTicker(String exchange) {
 		return getApiService(exchange).getBookTicker();
 	}
