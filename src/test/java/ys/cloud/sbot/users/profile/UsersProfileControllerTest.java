@@ -3,9 +3,6 @@ package ys.cloud.sbot.users.profile;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,7 +14,6 @@ import reactor.core.publisher.Mono;
 import ys.cloud.sbot.exchange.AccountPermission;
 import ys.cloud.sbot.exchange.AccountService;
 import ys.cloud.sbot.exchange.ExHelper;
-import ys.cloud.sbot.users.Registration;
 import ys.cloud.sbot.users.UserRepository;
 
 import java.util.Arrays;
@@ -113,7 +109,7 @@ class UsersProfileControllerTest {
 
         client.mutate().filter(basicAuthentication(TEST_USER, TEST_PASSWORD)).build()
                 .post().uri("/profile/excattc")
-                .body(BodyInserters.fromObject(exchangeAccount))
+                .body(BodyInserters.fromValue(exchangeAccount))
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 

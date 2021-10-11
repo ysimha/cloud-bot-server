@@ -8,11 +8,11 @@ public class ExHelper {
 
 	//TODO FIXME change encryption algorithm
 //	private static StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
-//	encryptor.setPassword("some-random-passwprd");
+//	encryptor.setPassword("some-random-password");
 //	encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
 	
-	private static BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-	private static AtomicBoolean initialize = new AtomicBoolean(false);
+	final private static BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+	final private static AtomicBoolean initialize = new AtomicBoolean(false);
 
 	public static String set(String str) {
 		return textEncryptor.encrypt(str);

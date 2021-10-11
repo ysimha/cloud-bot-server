@@ -47,7 +47,6 @@ public class AuthController extends UsersBase{
 				.flatMap(b -> (b
 						? Mono.error(new ResourceExistException("Username: " + user.getUsername() + " already exist."))
 						: Flux.zip(
-
 								Flux.from(userRepository.insert(User.builder().username(user.getUsername())
 										.password(passwordEncoder.encode(user.getPassword())).email(user.getUsername())
 										.roles(Arrays.asList("ROLE_USER")).build())),
