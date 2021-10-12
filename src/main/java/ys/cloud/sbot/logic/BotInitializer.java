@@ -8,7 +8,6 @@ import reactor.util.context.Context;
 import ys.cloud.sbot.exceptions.BuyOrderException;
 import ys.cloud.sbot.exchange.AccountService;
 import ys.cloud.sbot.exchange.binance.enums.OrderStatus;
-import ys.cloud.sbot.exchange.binance.errors.BinanceApiException;
 import ys.cloud.sbot.exchange.binance.model.Symbol;
 import ys.cloud.sbot.model.State;
 import ys.cloud.sbot.model.instance.BotInstance;

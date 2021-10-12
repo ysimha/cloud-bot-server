@@ -20,11 +20,8 @@ import java.util.ListIterator;
 public class Position {
 
     private Integer id;
- 
 	private List<TradeRecord> buyTrades = new LinkedList<TradeRecord>();
-	
 	private List<TradeRecord> sellTrades = new LinkedList<TradeRecord>();
-
 	private Ticker lastTicker;
 
 	private boolean pastGain ;
@@ -62,22 +59,6 @@ public class Position {
 		Double t2 = enterPrice * 1.02;
 		Double t3 = enterPrice + (enterPrice * ((factor*100)/100));
 
-//		if (state.getAddiData()!=null) {
-//			AddiData addiData = state.getAddiData();
-//			if (addiData.getStop()!=null) {
-//				stop = addiData.getStop();
-//			}
-//			if (addiData.getT1()!=null && addiData.getT1() > enterPrice*1.0025) {
-//				t1 = addiData.getT1();
-//			}
-//			if (addiData.getT2()!=null && addiData.getT2() > t1 ) {
-//				t2 = addiData.getT2();
-//			}
-//			if (addiData.getT3()!=null  && addiData.getT3() > t2) {
-//				t3 = addiData.getT3();
-//			}
-//		}
-		
 		state.setCanUpdate(true);
 		Filter priceFilter = Trader.getPriceFilter(state.getSymbol());
 	
@@ -177,7 +158,7 @@ public class Position {
 //		this.target3 *= 0.999;
 	}
 	
-	public double precentChange() {
+	public double percentChange() {
 		return (( lastTicker.getLast()/avePriceEnter()) *100.0 )-100;
 	}
 	

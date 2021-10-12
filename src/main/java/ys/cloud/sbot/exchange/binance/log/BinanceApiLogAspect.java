@@ -1,6 +1,7 @@
 package ys.cloud.sbot.exchange.binance.log;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,18 +20,12 @@ import lombok.extern.java.Log;
 @Aspect
 @Component
 public class BinanceApiLogAspect {
-	
-//	private Map<String, String> ignoreList = new HashMap<String,String>();
-	
-//	@PostConstruct
-//	private void populatIgnoreList() {
-//		ignoreList.put("getPrivate", "https://api.binance.com/api/v3/order");
-//	}
 
 	@Around("@annotation(BinanceApiLogHandler)")
 	public Object catchAPIError(ProceedingJoinPoint joinPoint) throws Throwable {
 		
-		Method method = ( (MethodSignature) joinPoint.getSignature()).getMethod();
+		Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+		Type type = ((MethodSignature) joinPoint.getSignature()).getDeclaringType();
 		BinanceApiLogHandler annotation = method.getAnnotation(BinanceApiLogHandler.class);
 		if (annotation==null) {
 			return joinPoint.proceed();
@@ -38,13 +33,13 @@ public class BinanceApiLogAspect {
 
 		BinanceHitCounter.hit(annotation.weight());
 		
-		boolean logRespone = annotation.logResponse();
+		boolean logResponse = annotation.logResponse();
 	    boolean logUrl =  annotation.logUrl();
 	    
 	    if (logUrl) {
 //			Object url = joinPoint.getArgs()[0];
 //			log.info(url.toString());
-			log.debug("API CALL ["+annotation.weight()+"]" +method.getName());
+			log.debug("API CALL ["+annotation.weight()+"]" + type+ " "+ method.getName());
 		}
 
 		return joinPoint.proceed();

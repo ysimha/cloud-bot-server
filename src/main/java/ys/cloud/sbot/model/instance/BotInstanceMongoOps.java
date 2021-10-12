@@ -63,7 +63,7 @@ public class BotInstanceMongoOps {
 		return reactiveMongoTemplate.updateFirst(query, update, BotInstance.class);
 	}
 
-	public Flux<String> findForMaintenanceIds(int seconds){
+	public Flux<String> findIdsForMaintenance(int seconds){
 		Date past = Date.from(LocalDateTime.now().minusSeconds(seconds).atZone(ZoneId.systemDefault()).toInstant());
 		return reactiveMongoTemplate.query(BotInstance.class)
 				.distinct("id")

@@ -1,21 +1,18 @@
 package ys.cloud.sbot.exchange.binance;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.PostConstruct;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 import ys.cloud.sbot.exchange.PublicApi;
 import ys.cloud.sbot.exchange.Ticker;
 import ys.cloud.sbot.exchange.TickerService;
 import ys.cloud.sbot.exchange.binance.model.BookTicker;
 import ys.cloud.sbot.exchange.binance.model.TickerPrice;
+
+import javax.annotation.PostConstruct;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j

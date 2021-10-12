@@ -17,14 +17,14 @@ import ys.cloud.sbot.signals.Signal;
 @Service
 @Slf4j
 public class ActiveBotsService {
-	
 
-	@Autowired BinanceExchangeInfoService 	binanceSymbolInfoService;
-	@Autowired BotInstanceMongoOps 			botInstanceMongoOps;
 	@Autowired BotInitializer 				botInitializer;
 	@Autowired BotMaintenance				botMaintenance;
 	@Autowired BotStopLoss					botStopLoss;
 	@Autowired BotTerminator                botTerminator;
+	@Autowired BotInstanceMongoOps 			botInstanceMongoOps;
+
+	@Autowired BinanceExchangeInfoService 	binanceSymbolInfoService;
 	@Autowired BinanceTickerService 		tickerService;
 
 	public void onSignal(Signal signal) {
@@ -32,7 +32,7 @@ public class ActiveBotsService {
 		log.info("on signal : "+ signal);
 
 		if ( !signal.getQuoteAsset().toUpperCase().equals("BTC") ){
-			log.error("only BTC quote asset is supported ");
+			log.error("sorry, only BTC quote asset is supported at this time :-(");
 			return;
 		}
 
@@ -45,16 +45,13 @@ public class ActiveBotsService {
 		log.info("on signal symbol: "+ symbol.getSymbol());
 
 		botInstanceMongoOps.findStandbyIds()
-		
-		.publishOn(Schedulers.parallel())
-		.flatMap( id-> botInstanceMongoOps.takeForMethod("onSignal", id))
-		.subscribe(
-					botInitializer.initialize(signal, symbol),
-					
-					err->log.error("error initializing bot instances on signal",err),
-					
-					()->log.info("initializing bot instances complete")
-				);
+								.publishOn(Schedulers.parallel())
+								.flatMap( id-> botInstanceMongoOps.takeForMethod("onSignal", id))
+								.subscribe(
+											botInitializer.initialize(signal, symbol),
+											err->log.error("error initializing bot instances on signal",err),
+											()->log.info("initializing bot instances complete")
+										);
 		
 		log.info("on signal exit, symbol: "+ symbol.getSymbol());
 	}
@@ -63,12 +60,12 @@ public class ActiveBotsService {
 	@Scheduled(fixedRate = 30000)
 	public void fixMethod(){
 		int seconds = 60;
-		botInstanceMongoOps.findForMaintenanceIds(seconds)
+		//searching for bots that are locked on method for 30 sec, and release them
+		botInstanceMongoOps.findIdsForMaintenance(seconds)
 				.doOnNext(id->log.error("found bot instance ["+id+"] locked for method for at list "+seconds+" seconds, releasing from method"))
 				.flatMap(botInstanceMongoOps::releaseFormMethod)
 				.subscribe(System.out::println);
 	}
-
 
 	@Scheduled(fixedRate = 10000)
 	public void botLoop(){
@@ -81,7 +78,7 @@ public class ActiveBotsService {
 
 				.subscribe(
 				        bot-> {
-				        	log.warn("\n\n>>>> Start BOT Loop <<<<  processing bot: "+bot.profileId());
+				        	log.debug("\n\n>>>> Start BOT Loop <<<<  processing bot: "+bot.profileId());
 
 							State state = bot.getState();
 							updateLastTicker(state);
@@ -101,12 +98,12 @@ public class ActiveBotsService {
 						},
 						err->log.error(">>>> error  bots loop ",err),
 
-						()->log.info(">>>> bot loop  complete")
+						()->log.debug(">>>> bot loop  complete")
 				);
 	}
 
 	private void updateLastTicker(State state) {
-		log.warn("updateLastTicker");
+		log.debug("State. "+state);
 		Position position = state.getPosition();
 		Ticker ticker = tickerService.getTicker(state.getSymbol().getSymbol());
 		position.updateTicker(ticker);

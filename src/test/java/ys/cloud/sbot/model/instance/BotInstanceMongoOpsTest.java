@@ -258,7 +258,7 @@ class BotInstanceMongoOpsTest {
 
     @Test
     public void testFindForMaintenanceIds(){
-        String s = botInstanceMongoOps.findForMaintenanceIds(60).blockFirst();
+        String s = botInstanceMongoOps.findIdsForMaintenance(60).blockFirst();
         System.out.println("\n==================="+s+"\n");
     }
 

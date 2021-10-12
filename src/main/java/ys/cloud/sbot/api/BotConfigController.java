@@ -49,29 +49,29 @@ public class BotConfigController extends UsersBase {
 			@RequestBody @Valid BotConfig botConfig) {
 
 		return userProfileRepository.findById(getUserName(principal))
-//				.log()
-				.switchIfEmpty(Mono.error(new ResourceNotFoundException("profile not found")))
-				.map(profile->{
-					if (botConfig.getStoploss()==null || botConfig.getStoploss() <= 0.0) {
-						throw new UnsupportedArgumentException("stop loss must be positive number");
-					}
-					if (botConfig.getDefaultAmount()==null || botConfig.getDefaultAmount()<=0.0) {
-						throw new UnsupportedArgumentException("default amount must be positive number");
-					}
-					botConfig.setProfileId(profile.getId());
-					return botConfig;
-				})
+//			.log()
+			.switchIfEmpty(Mono.error(new ResourceNotFoundException("profile not found")))
+			.map(profile->{
+				if (botConfig.getStoploss()==null || botConfig.getStoploss() <= 0.0) {
+					throw new UnsupportedArgumentException("stop loss must be positive number");
+				}
+				if (botConfig.getDefaultAmount()==null || botConfig.getDefaultAmount()<=0.0) {
+					throw new UnsupportedArgumentException("default amount must be positive number");
+				}
+				botConfig.setProfileId(profile.getId());
+				return botConfig;
+			})
 //				// FIXME for now support only one bot config
-				.flatMap(
-					bc-> botConfigRepository.deleteByProfileId(bc.getProfileId()).last()) //mongoTemplate.remove(Query.query(Criteria.where("profieId").is(bc.getProfileId())),BotConfig.class ))
-				//TODO FIXME patch 'botConfigRepository.deleteByProfileId' throws error when nothing to delete.
-				.doOnError(err->{
-					log.error("Error update bot config: "+err);
-				})
-				.onErrorReturn(BotConfig.builder().build())
-				.flatMap(x->
-					botConfigRepository.save(botConfig)
-				);
-
+			.flatMap(
+				bc-> botConfigRepository.deleteByProfileId(bc.getProfileId()).last())
+				//mongoTemplate.remove(Query.query(Criteria.where("profileId").is(bc.getProfileId())),BotConfig.class ))
+			//TODO FIXME patch 'botConfigRepository.deleteByProfileId' throws error when nothing to delete.
+			.doOnError(err->{
+				log.error("Error update bot config: "+err);
+			})
+			.onErrorReturn(BotConfig.builder().build())
+			.flatMap(x->
+				botConfigRepository.save(botConfig)
+			);
 	}
 }

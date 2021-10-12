@@ -16,15 +16,10 @@ public class ExchangesSummaryService {
     final private AccountService accountService;
     final private PriceDataService priceDataService;
 
-//    final private TickerServiceAdaptor tickerServiceAdaptor;
-
-    //    public ExchangesSummaryService(AccountService accountService, TickerServiceAdaptor tickerServiceAdaptor) {
     public ExchangesSummaryService(AccountService accountService,
-                                   /*TickerServiceAdaptor tickerServiceAdaptor, */
                                    PriceDataService priceDataService) {
 
         this.accountService = accountService;
-//        this.tickerServiceAdaptor = tickerServiceAdaptor;
         this.priceDataService = priceDataService;
     }
 
