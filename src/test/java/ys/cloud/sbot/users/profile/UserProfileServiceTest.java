@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 import ys.cloud.sbot.PrivateMethod;
@@ -18,8 +17,7 @@ import ys.cloud.sbot.exchange.ExHelper;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest()
 public class UserProfileServiceTest /*extends ApiKeysTest*/{

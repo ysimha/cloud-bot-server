@@ -16,6 +16,7 @@ import ys.cloud.sbot.exchange.*;
 import ys.cloud.sbot.exchange.binance.log.BinanceApiLogHandler;
 import ys.cloud.sbot.exchange.binance.log.BinanceHitCounter;
 import ys.cloud.sbot.exchange.binance.model.Trade;
+import ys.cloud.sbot.users.profile.ExchangeAccount;
 
 
 @Service
@@ -25,8 +26,8 @@ public class BinanceAccountService implements AccountApi {
 	HttpBinance httpBinance;
 
 	@Override
-	public Flux<Balance> getBalances(String apiKey,String apiSecret) {
-		Mono<BinanceAccount> account = binanceAccountInformation(apiKey, apiSecret);
+	public Flux<Balance> getBalances(ExchangeAccount exchangeAccount) {
+		Mono<BinanceAccount> account = binanceAccountInformation(exchangeAccount);
 
 		return account.flatMapMany(res-> Flux.fromIterable(res.getBalances()))
 				.filter(b-> {return b.getBalance()>0.0;})
@@ -42,8 +43,8 @@ public class BinanceAccountService implements AccountApi {
 	}
 
 	@Override
-	public Mono<AccountPermission> accountPermission(String apikey, String apisecret) {
-		Mono<BinanceAccount> account = binanceAccountInformation(apikey, apisecret);
+	public Mono<AccountPermission> accountPermission(ExchangeAccount exchangeAccount) {
+		Mono<BinanceAccount> account = binanceAccountInformation(exchangeAccount);
 		
 		return account.map(acct-> AccountPermission.builder()
 				.canDeposit(acct.getCanDeposit())
@@ -52,21 +53,32 @@ public class BinanceAccountService implements AccountApi {
 				.build());
 	}
 
+	@Override
+	public Mono<Account> getAccount(ExchangeAccount exchangeAccount) {
+		return binanceAccountInformation(exchangeAccount)
+				.map(binanceAccount->{
+							Account account = new Account();
+							BeanUtils.copyProperties(binanceAccount,account);
+							return account;
+						}
+				);
+	}
+
 	@BinanceApiLogHandler(weight = 5)
-	private Mono<BinanceAccount> binanceAccountInformation(String apikey, String apisecret) {
+	private Mono<BinanceAccount> binanceAccountInformation(ExchangeAccount exchangeAccount) {
 		return httpBinance.getResponseJson(
-				HttpBinance.ACCOUNT_URL,new HashMap<>(),apikey,apisecret,BinanceAccount.class);
+				resolveUrl(HttpBinance.ACCOUNT_URL,exchangeAccount),new HashMap<>(),exchangeAccount.getPublicKey(),exchangeAccount.getSecret(),BinanceAccount.class);
 	}
 
 	@Override
 	@BinanceApiLogHandler(weight = 5)
-	public Mono<List<TradeRecord>> myTrades(String apikey, String apisecret, String asset) {
+	public Mono<List<TradeRecord>> myTrades(ExchangeAccount exchangeAccount, String asset) {
 		HashMap<String, String> params = new HashMap<>();
 		params.put("symbol", asset);
 		params.put("timestamp", Long.valueOf(System.currentTimeMillis()).toString());
 		
 		return httpBinance.getResponseJson(
-				HttpBinance.MY_TRADES_URL,params,apikey,apisecret,Trade[].class)
+				resolveUrl(HttpBinance.MY_TRADES_URL,exchangeAccount),params,exchangeAccount.getPublicKey(),exchangeAccount.getSecret(),Trade[].class)
 				.map(trades->
 					Arrays.asList(trades).stream().map(
 							t-> TradeRecord.builder()
@@ -85,14 +97,14 @@ public class BinanceAccountService implements AccountApi {
 				);
 	}
 
-    @Override
-    public Mono<Account> getAccount(String apiKey, String apiSecret) {
-        return binanceAccountInformation(apiKey,apiSecret)
-                .map(binanceAccount->{
-                    Account account = new Account();
-                    BeanUtils.copyProperties(binanceAccount,account);
-                    return account;
-                 }
-         );
-    }
+	private String resolveUrl(String endPoint, ExchangeAccount exchangeAccount) {
+		switch (exchangeAccount.getExchange().toUpperCase()) {
+			case "BINANCE":
+				return HttpBinance.BASE_URL+endPoint;
+			case "BINANCE-US":
+				return HttpBinance.BASE_URL_US+endPoint;
+			default:
+				throw new RuntimeException("can't url for: "+exchangeAccount.getExchange());
+		}
+	}
 }

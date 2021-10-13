@@ -22,11 +22,6 @@ public class BotHistoryController  extends UsersBase {
     @GetMapping(path = "", produces = "application/stream+json")
     public Flux<TradingSessionRecord> get(@AuthenticationPrincipal UsernamePasswordAuthenticationToken principal){
         return 	getProfile(principal)
-                .flatMapMany(profile-> tradingSessionRecordRepository.findByProfileId(profile.getId()))
-//                .zipWith(Flux.interval(Duration.ofSeconds(1)))
-//                .map(t->t.getT1())
-//                .delayElements(Duration.ofSeconds(10))
-                .doOnNext(e-> System.out.println(e))
-                ;
+                .flatMapMany(profile-> tradingSessionRecordRepository.findByProfileId(profile.getId()));
     }
 }

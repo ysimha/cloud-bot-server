@@ -18,23 +18,26 @@ public class TradingService {
 	@Autowired BinanceTradingService binanceTradingService;
 	
 	public Mono<NewOrderResponse> newOrder(ExchangeAccount exchangeAccount, Map<String, String> params) {
-		return getApiService(exchangeAccount).newOrder( exchangeAccount.getPublicKey(), exchangeAccount.getSecret(), params) ;
+		return getApiService(exchangeAccount).newOrder( exchangeAccount, params) ;
 	}
 
 	public Mono<CancelResponse> cancelOrder(ExchangeAccount exchangeAccount, Map<String,String> params) {
-		return getApiService(exchangeAccount).cancelOrder( exchangeAccount.getPublicKey(), exchangeAccount.getSecret(), params) ;
+		return getApiService(exchangeAccount).cancelOrder( exchangeAccount, params) ;
 	}
 	
 	public Mono<GetOrderResponse> getOrder(ExchangeAccount exchangeAccount,Map<String,String> params) {
-		return getApiService(exchangeAccount).getOrder( exchangeAccount.getPublicKey(), exchangeAccount.getSecret(), params) ;
+		return getApiService(exchangeAccount).getOrder( exchangeAccount, params) ;
 	}
-	
+
 	private TradingApi getApiService(ExchangeAccount exchangeAccount) {
 		switch (exchangeAccount.getExchange().toUpperCase()) {
-		case "BINANCE":
-			return binanceTradingService;
+			case "BINANCE":
+			case "BINANCE-US":
+				return binanceTradingService;
 		default:
 			throw new RuntimeException(exchangeAccount.getExchange());
 		}
 	}
+
+
 }

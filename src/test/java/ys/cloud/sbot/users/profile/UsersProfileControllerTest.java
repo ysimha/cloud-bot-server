@@ -7,33 +7,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
+import ys.cloud.sbot.TestHelper;
 import ys.cloud.sbot.exchange.AccountPermission;
 import ys.cloud.sbot.exchange.AccountService;
 import ys.cloud.sbot.exchange.ExHelper;
-import ys.cloud.sbot.users.UserRepository;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+import static ys.cloud.sbot.TestHelper.TEST_PASSWORD;
+import static ys.cloud.sbot.TestHelper.TEST_USER;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UsersProfileControllerTest {
 
-    public static final String TEST_USER = "test-user@mail.com";
-    public static final String TEST_PASSWORD = "test-password";
-
-    @Autowired UserProfileRepository userProfileRepository;
-    @Autowired UserRepository userRepository;
-    @Autowired PasswordEncoder passwordEncoder;
+    @Autowired
+    UserProfileRepository userProfileRepository;
+    @Autowired
+    TestHelper testHelper;
 
     @MockBean
     AccountService accountService;
@@ -44,17 +41,14 @@ class UsersProfileControllerTest {
 
     @BeforeAll
     public void setup() {
-        ExHelper.init("_pass");
 
         client = WebTestClient
                 .bindToServer()
                 .baseUrl("http://localhost:" + port)
                 .build();
 
-        userProfileRepository.insert(UserProfile.builder().id(TEST_USER).build()).block();
-        userRepository.insert(ys.cloud.sbot.users.User.builder().username(TEST_USER)
-                .password(passwordEncoder.encode(TEST_PASSWORD)).email(TEST_USER)
-                .roles(Arrays.asList("ROLE_USER")).build()).block();
+        testHelper.createUser(null,null);
+        testHelper.createUserProfile(null);
     }
 
     @Test

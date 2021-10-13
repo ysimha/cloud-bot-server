@@ -25,9 +25,10 @@ import ys.cloud.sbot.exchange.binance.model.APIError;
 public class HttpBinance {
 
     public static final String BASE_URL = "https://api.binance.com/api/";
-    public static final String ACCOUNT_URL = BASE_URL +"v3/account";
-    public static final String ORDER_URL = BASE_URL +"v3/order";
-    public static final String MY_TRADES_URL = BASE_URL +"v3/myTrades" ;
+	public static final String BASE_URL_US = "https://api.binance.us/api/";
+    public static final String ORDER_URL = "v3/order";
+	public static final String ACCOUNT_URL = "v3/account";
+	public static final String MY_TRADES_URL = "v3/myTrades" ;
 
 	public static final String EXCHANGE_INFO =  BASE_URL +"v3/exchangeInfo";
     public static final String CANDLESTICK = BASE_URL +"v3/klines";
@@ -65,7 +66,6 @@ public class HttpBinance {
 			    String query = buildUriParams(params);
 			    url = url.concat("?").concat(query);
 			}
-
 //		had to increase default buffer size due to
 //		exception is org.springframework.core.io.buffer.DataBufferLimitException: Exceeded limit on max bytes to buffer : 104857
 //		when calling https://api.binance.com/api/v3/exchangeInfo

@@ -20,8 +20,7 @@ public class UsersProfileController extends UsersBase {
 
 	@GetMapping()
 	public Mono<UserProfile> getUserProfile(@AuthenticationPrincipal UsernamePasswordAuthenticationToken principal){
-			return 	userProfileRepository.findById(getUserName(principal))
-				.switchIfEmpty(Mono.error(new ResourceNotFoundException("profile not found")))
+		return getProfile(principal)
 				.doOnNext(p->p.getExchangeAccounts().forEach(e->e.setSecret("...")));
 	}
 
@@ -30,10 +29,8 @@ public class UsersProfileController extends UsersBase {
 			@AuthenticationPrincipal UsernamePasswordAuthenticationToken principal ,
 			@PathVariable String exchange ) {
 
-		return userProfileRepository.findById(getUserName(principal))
-		.switchIfEmpty(
-				Mono.error(new ResourceNotFoundException("profile not found")))
-		.flatMap(userProfile-> userProfileService.deleteExchangeAccount(userProfile, exchange));
+		return getProfile(principal)
+			.flatMap(userProfile-> userProfileService.deleteExchangeAccount(userProfile, exchange));
 	}
 
 	@PostMapping("excattc")
@@ -41,9 +38,7 @@ public class UsersProfileController extends UsersBase {
 			@AuthenticationPrincipal UsernamePasswordAuthenticationToken principal ,
 			@RequestBody @Valid  ExchangeAccount exchangeAccount){
 
-		return userProfileRepository.findById(getUserName(principal))
-				.switchIfEmpty(
-						Mono.error(new ResourceNotFoundException("profile not found")))
+		return getProfile(principal)
 				.flatMap(userProfile-> userProfileService.addExchangeAccount(userProfile, exchangeAccount));
 
 	}

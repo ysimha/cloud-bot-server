@@ -23,25 +23,26 @@ public class AccountService {
 	}
 
 	public Mono<Account> getAccount(ExchangeAccount exchangeAccount){
-		return getApiService(exchangeAccount).getAccount(exchangeAccount.getPublicKey(), exchangeAccount.getSecret());
+		return getApiService(exchangeAccount).getAccount(exchangeAccount);
 	}
 
 	public Flux<Balance> getBalances(ExchangeAccount exchangeAccount){
-		return getApiService(exchangeAccount).getBalances(exchangeAccount.getPublicKey(), exchangeAccount.getSecret());
+		return getApiService(exchangeAccount).getBalances(exchangeAccount);
 	}
 
 	public Mono<AccountPermission> accountPermissions(ExchangeAccount exchangeAccount){
-		return getApiService(exchangeAccount).accountPermission(exchangeAccount.getPublicKey(), exchangeAccount.getSecret());
+		return getApiService(exchangeAccount).accountPermission(exchangeAccount);
 	}
 	
 	public Mono<List<TradeRecord>> myTrades(ExchangeAccount exchangeAccount,String symbol) {
-		return getApiService(exchangeAccount).myTrades(exchangeAccount.getPublicKey(), exchangeAccount.getSecret(), symbol);
+		return getApiService(exchangeAccount).myTrades(exchangeAccount, symbol);
 	}
 	
 	private AccountApi getApiService(ExchangeAccount exchangeAccount) {
 		switch (exchangeAccount.getExchange().toUpperCase()) {
-		case "BINANCE":
-			return binanceAccountService;
+			case "BINANCE":
+			case "BINANCE-US":
+				return binanceAccountService;
 		default:
 			throw new RuntimeException(exchangeAccount.getExchange());
 		}

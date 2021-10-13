@@ -1,5 +1,5 @@
 package ys.cloud.sbot.model;
 
 public enum Exchange {
-	BINANCE
+	BINANCE, BINANCE_US
 }
