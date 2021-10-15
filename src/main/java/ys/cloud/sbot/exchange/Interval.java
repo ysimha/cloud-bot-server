@@ -23,7 +23,7 @@ public enum Interval {
 	final private String text ;
 	final private Duration duration;
 	
-	private Interval(String text, Duration duration) {
+	Interval(String text, Duration duration) {
 		this.text = text;
 		this.duration = duration;
 	}

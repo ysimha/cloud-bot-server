@@ -30,9 +30,8 @@ public class ActiveBotsService {
 	public void onSignal(Signal signal) {
 		
 		log.info("on signal : "+ signal);
-
-		if ( !signal.getQuoteAsset().toUpperCase().equals("BTC") ){
-			log.error("sorry, only BTC quote asset is supported at this time :-(");
+		if ( !signal.getQuoteAsset().toUpperCase().equals("USDT") ){ //TODO add support to other quote assets
+			log.error("sorry, only USDT quote asset is supported at this time :-(");
 			return;
 		}
 

@@ -26,7 +26,8 @@ public class SecurityConfig {
 
     @Value("${client.url}")
     private String clientUrl;
-    private WebFilter securityFilter = new WebFilter() {
+    
+    private final WebFilter securityFilter = new WebFilter() {
         @Override
         public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 

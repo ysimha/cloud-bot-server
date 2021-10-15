@@ -41,13 +41,14 @@ public class BinanceTickerService implements TickerService {
 		Map<String,Ticker> newMap = new ConcurrentHashMap<>();
 		
 		TickerPrice[] prices = binancePublicAPI.getPrice().block();
-		BookTicker[] books = binancePublicAPI.getBookTicker().block() ;
 
 		for (TickerPrice tickerPrice : prices) {
 			Double last = tickerPrice.getPrice();
 			newMap.put(tickerPrice.getSymbol().trim(), new Ticker(last, last, last));
 		}
-		
+
+		BookTicker[] books = binancePublicAPI.getBookTicker().block() ;
+
 		for (BookTicker bookTicker : books) {
 			Ticker ticker = newMap.get(bookTicker.getSymbol());
 			if (ticker!=null) {

@@ -74,9 +74,7 @@ public class UserProfileService {
 		Optional<ExchangeAccount> optOldAccount = userProfile.getExchangeAccounts().stream()
 				.filter(ea -> ea.getExchange().equals(exchange)).findAny();
 
-		if (optOldAccount.isPresent()) {
-			userProfile.getExchangeAccounts().remove(optOldAccount.get());
-		}
+		optOldAccount.ifPresent(exchangeAccount -> userProfile.getExchangeAccounts().remove(exchangeAccount));
 	}
 
 	private Mono<Boolean> validateAccount(ExchangeAccount exchangeAccount){

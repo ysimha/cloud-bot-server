@@ -75,7 +75,7 @@ public class BotOperationsService {
                             }
                             position.getBuyTrades().add(trade);
                             position.setLastTicker(tickerService.getTicker(state.getSymbol().getSymbol()));
-                            log.debug("new position " + position.toString() + bot.profileId());
+                            log.debug("new position " + position + bot.profileId());
                         }
                 );
     }
@@ -229,7 +229,7 @@ public class BotOperationsService {
             return Mono.delay(Duration.ofSeconds(1))
                     .then(tradeForOrder(orderId))
                     .map(trade -> {
-                        log.info("Trade for order " + orderId + ". " + tradeRecord.toString());
+                        log.info("Trade for order " + orderId + ". " + tradeRecord);
                         if ( trade.getPrice() == Double.NaN || trade.getPrice() == 0 ) {
 
                             log.error("trade price is NaN or 0.  trade: " + tradeRecord + "will attempt to set price and quanity from order result");

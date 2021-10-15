@@ -2,7 +2,7 @@ curl POST http://localhost:8098/signals/simple -v -H 'Content-Type: application/
   -H 'X-AUTH-TOKEN: zzzzzz' \
   -d '
     {
-        "quoteAsset": "BTC",
+        "quoteAsset": "USDT",
          "baseAsset": "ETH"
     }
 ' /

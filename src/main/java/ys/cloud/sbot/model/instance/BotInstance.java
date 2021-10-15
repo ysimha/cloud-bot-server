@@ -38,7 +38,7 @@ public class BotInstance {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
     
-	public String botInfo() { return  " , bot instance: "+this.toString();}
+	public String botInfo() { return  " , bot instance: "+this;}
 	public String profileId() { return  " , profile id: "+this.profileId;}
 	
 	public static Mono<BotInstance> fromContext() {

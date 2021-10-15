@@ -21,7 +21,6 @@ public class BinanceExchangeInfoService {
 	
 	@Autowired private BinancePublicService binancePublicAPI;
 	
-	private ExchangeInfo exchangeInfo;
 	private Map<String,Symbol> binanceSymbols = new HashMap<String,Symbol>();
 
 	@Value("${spring.profiles.active:}")
@@ -36,16 +35,18 @@ public class BinanceExchangeInfoService {
 		return binanceSymbols.get(baseAsset+quoteAsset);
 	}
 	
-	@Scheduled(fixedRate = 300000) //call it every 5 minutes
+	@Scheduled(fixedRate = 600000) //call it every 10 minutes
 	private void loadExchangeInfo() {
 		if ("test".equals(activeProfile))return ;
 
 		log.debug("loading binance exchange info");
+
+		ExchangeInfo exchangeInfo = binancePublicAPI.exchangeInfo().block();
 		
-		this.exchangeInfo = binancePublicAPI.exchangeInfo().block();
-		
-		this.binanceSymbols = this.exchangeInfo.getSymbols()
-				.stream().collect(Collectors
+		this.binanceSymbols = exchangeInfo.getSymbols()
+				.stream()
+				.filter(t -> t.getSymbol().endsWith("USDT"))
+				.collect(Collectors
 						.toMap(Symbol::getSymbol, Function.identity()));
 	}
 }

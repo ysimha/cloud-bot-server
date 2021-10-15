@@ -71,8 +71,4 @@ public class BotInstanceController extends UsersBase {
 	//start and buy specific symbol
 	
 	//start and buy limit specific symbol
-	
-//	private  Mono<Boolean> validExchange(UserProfile up, BotActivation ba) {
-//		return exchangeAccountRepository.findByProfileId(up.getId()).any(ea->ea.getExchange().equals(ba.getExchange()));
-//	}
 }

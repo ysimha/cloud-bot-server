@@ -16,7 +16,7 @@ public class PrivateMethod {
 		}
 	}
 
-	private static Method findByName(Class<? extends Object> class1, String name) {
+	private static Method findByName(Class<?> class1, String name) {
 		return Arrays.asList(class1.getDeclaredMethods()).stream().filter(m -> m.getName().equals(name)).findFirst()
 				.get();
 	}

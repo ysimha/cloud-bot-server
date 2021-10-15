@@ -9,11 +9,11 @@ import ys.cloud.sbot.users.profile.ExchangeAccount;
 //@Service
 public interface AccountApi {
 	
-	public Flux<Balance> getBalances(ExchangeAccount exchangeAccount);
+	Flux<Balance> getBalances(ExchangeAccount exchangeAccount);
 
-	public Mono<AccountPermission> accountPermission(ExchangeAccount exchangeAccount);
+	Mono<AccountPermission> accountPermission(ExchangeAccount exchangeAccount);
 	
-	public Mono<List<TradeRecord>> myTrades(ExchangeAccount exchangeAccount, String symbol) ;
+	Mono<List<TradeRecord>> myTrades(ExchangeAccount exchangeAccount, String symbol) ;
 
-	public Mono<Account> getAccount(ExchangeAccount exchangeAccount);
+	Mono<Account> getAccount(ExchangeAccount exchangeAccount);
 }

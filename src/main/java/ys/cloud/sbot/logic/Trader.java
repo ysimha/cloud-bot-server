@@ -122,7 +122,7 @@ public class Trader {
 			return quantity.toString().substring(0, 6);
 		} 
 		if ( lOT_SIZE.getMaxQty() < quantity || lOT_SIZE.getMinQty() > quantity ) {
-			throw new RuntimeException("quantity: " + quantity + ", " + lOT_SIZE.toString());
+			throw new RuntimeException("quantity: " + quantity + ", " + lOT_SIZE);
 		}
 		return scale(quantity, lOT_SIZE.getStepSize());
 	}

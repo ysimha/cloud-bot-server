@@ -23,7 +23,7 @@ public class BinancePriceDataService implements PriceApi {
     @Autowired
     private BinancePublicService binancePublicService;
 
-    private Map<String,PriceData> coinDateMap = new ConcurrentHashMap<>();
+    private final Map<String,PriceData> coinDateMap = new ConcurrentHashMap<>();
 
     public PriceData getPriceData(String id) {
         return coinDateMap.get(id.toUpperCase()) ;

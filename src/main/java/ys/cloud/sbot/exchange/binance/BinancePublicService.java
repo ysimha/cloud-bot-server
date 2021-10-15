@@ -41,7 +41,7 @@ public class BinancePublicService implements PublicApi  {
 	}
 
 	@Override
-	@BinanceApiLogHandler(weight = 1)
+	@BinanceApiLogHandler(weight = 40)
 	public Mono<ExchangeInfo> exchangeInfo() {
 		return httpBinance.getResponseJson(
 				HttpBinance.EXCHANGE_INFO,new HashMap<>(),ExchangeInfo.class);
