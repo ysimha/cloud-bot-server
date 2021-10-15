@@ -30,7 +30,8 @@ public class UsersProfileController extends UsersBase {
 			@PathVariable String exchange ) {
 
 		return getProfile(principal)
-			.flatMap(userProfile-> userProfileService.deleteExchangeAccount(userProfile, exchange));
+			.flatMap(userProfile-> userProfileService.deleteExchangeAccount(userProfile, exchange))
+				.doOnNext(p->p.getExchangeAccounts().forEach(e->e.setSecret("...")));
 	}
 
 	@PostMapping("excattc")
@@ -39,7 +40,8 @@ public class UsersProfileController extends UsersBase {
 			@RequestBody @Valid  ExchangeAccount exchangeAccount){
 
 		return getProfile(principal)
-				.flatMap(userProfile-> userProfileService.addExchangeAccount(userProfile, exchangeAccount));
+				.flatMap(userProfile-> userProfileService.addExchangeAccount(userProfile, exchangeAccount))
+				.doOnNext(p->p.getExchangeAccounts().forEach(e->e.setSecret("...")));
 
 	}
 }

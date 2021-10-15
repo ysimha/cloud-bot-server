@@ -7,10 +7,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.*;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,18 +21,19 @@ import ys.cloud.sbot.exchange.binance.model.APIError;
 @Service
 @Slf4j
 public class HttpBinance {
-
+// https://api.binance.com/api/v3/ticker/24hr/BNBBTC
     public static final String BASE_URL = "https://api.binance.com/api/";
 	public static final String BASE_URL_US = "https://api.binance.us/api/";
     public static final String ORDER_URL = "v3/order";
 	public static final String ACCOUNT_URL = "v3/account";
 	public static final String MY_TRADES_URL = "v3/myTrades" ;
 
-	public static final String EXCHANGE_INFO =  BASE_URL +"v3/exchangeInfo";
-    public static final String CANDLESTICK = BASE_URL +"v3/klines";
-    public static final String PRICE = BASE_URL +"v3/ticker/price";
-    public static final String BOOK_TICKER = BASE_URL +"v3/ticker/bookTicker";
-    
+	public static final String EXCHANGE_INFO =  BASE_URL_US +"v3/exchangeInfo";
+    public static final String CANDLESTICK = BASE_URL_US +"v3/klines";
+    public static final String PRICE = BASE_URL_US +"v3/ticker/price";
+    public static final String BOOK_TICKER = BASE_URL_US +"v3/ticker/bookTicker";
+	public static final String TICKER_24HR = BASE_URL_US + "v3/ticker/24hr";
+
     // ----------------------- public ------------------------------//
     
     public <T> Mono<T> getResponseJson(String url, Map<String, String> params , Class<T> tClass) {
@@ -59,21 +58,38 @@ public class HttpBinance {
 		return deleteResponseSpec(url, params, apikey, apisecret).bodyToMono(klass)
         		.onErrorMap(WebClientResponseException.class, err-> parseError(err,url));
 	}
-	
-	
-    private ResponseSpec getResponseSpec(String url, Map<String, String> params) {
-			if (params.isEmpty()==false) {
-			    String query = buildUriParams(params);
-			    url = url.concat("?").concat(query);
-			}
-//		had to increase default buffer size due to
+
+
+	private ResponseSpec getResponseSpec(String url, Map<String, String> params) {
+		if (params.isEmpty()==false) {
+			String query = buildUriParams(params);
+			url = url.concat("?").concat(query);
+		}
+
+		ExchangeFilterFunction logHeaders = ExchangeFilterFunction.ofResponseProcessor(response -> {
+			response.headers().asHttpHeaders().forEach((name, values) -> {
+				values.forEach(value -> {
+					if (name.startsWith("x-mbx-used-weight")){
+						if (Integer.parseInt(value)>200){
+							System.out.println("\nname: "+ name+",  value: "+value+"\n");
+						}
+					}
+				});
+			});
+			return Mono.just(response);
+		});
+
+		//had to increase default buffer size due to
 //		exception is org.springframework.core.io.buffer.DataBufferLimitException: Exceeded limit on max bytes to buffer : 104857
 //		when calling https://api.binance.com/api/v3/exchangeInfo
-			WebClient webClient = WebClient.builder()
+		WebClient webClient = WebClient.builder()
 					.exchangeStrategies(ExchangeStrategies.builder()
 					.codecs(conf -> conf.defaultCodecs()
 							.maxInMemorySize( 1024 * 1024 * 4 ))
-					.build()).baseUrl(url).build();
+					.build())
+					.baseUrl(url)
+					.filter(logHeaders)
+					.build();
 
 			return webClient.get()
 					.header("Content-Type", "application/x-www-form-urlencoded")
@@ -141,7 +157,8 @@ public class HttpBinance {
 			return ex;
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			throw new RuntimeException(e1);
+//			throw new RuntimeException(e1);
+			return e;
 		}
 	}
 }

@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Mono;
 import ys.cloud.sbot.exchange.Interval;
-import ys.cloud.sbot.exchange.binance.model.BookTicker;
-import ys.cloud.sbot.exchange.binance.model.ChartData;
-import ys.cloud.sbot.exchange.binance.model.ExchangeInfo;
-import ys.cloud.sbot.exchange.binance.model.TickerPrice;
+import ys.cloud.sbot.exchange.binance.model.*;
 
 import java.util.Arrays;
 
@@ -19,6 +16,17 @@ class BinancePublicServiceTest {
 
     @Autowired
     BinancePublicService binancePublicService;
+
+    @Test
+    void getTicker24Hr() {
+        Ticker24hr[] ticker24hrs = binancePublicService.getTicker24Hr().block();
+        assertTrue(ticker24hrs.length > 0);
+        assertTrue(Arrays.stream(ticker24hrs).anyMatch(bt->bt.getSymbol().equals("BTCUSDT")));
+        Arrays.stream(ticker24hrs).filter(t -> t.getSymbol().endsWith("USDT"))
+                .forEach(
+                        t-> System.out.println(t.getSymbol()+" -> "+t.getLastPrice())
+                );
+    }
 
     @Test
     void getBookTicker() {

@@ -19,7 +19,7 @@ public class ExchangeInitializer {
                 exchangeRepository.saveAll(Arrays.asList(
                         new Exchange[]{
                         Exchange.builder().name("Binance").id("BINANCE").build(),
-                        Exchange.builder().name("Binance-US").id("BINANCE-US").build(),
+                        Exchange.builder().name("Binance_US").id("BINANCE_US").build(),
                 }))
             ).doOnNext(System.out::println).blockLast();
     }

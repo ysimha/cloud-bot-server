@@ -18,7 +18,14 @@ public class BinancePublicService implements PublicApi  {
 
 	@Autowired
 	HttpBinance httpBinance;
-	
+
+	@Override
+	@BinanceApiLogHandler(weight = 40)
+	public Mono<Ticker24hr[]> getTicker24Hr() {
+		return httpBinance.getResponseJson(
+				HttpBinance.TICKER_24HR,new HashMap<>(),Ticker24hr[].class);
+	}
+
 	@Override
 	@BinanceApiLogHandler(weight = 2)
 	public Mono<BookTicker[]> getBookTicker() {

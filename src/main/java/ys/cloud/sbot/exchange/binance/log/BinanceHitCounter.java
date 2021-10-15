@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntUnaryOperator;
 
 @Slf4j
 public class BinanceHitCounter {
@@ -25,6 +24,6 @@ public class BinanceHitCounter {
             log.info("=> Binance Hit Counter: "+ count + ", Max: "+max.intValue()+", at minute before :"+now);
             System.out.println("=> Binance Hit Counter: "+ count + " max: "+max.intValue()+ " max time: "+maxTime+", at minute before "+now);
         }
-      count.getAndAdd(weight);
+        count.getAndAdd(weight);
     }
 }

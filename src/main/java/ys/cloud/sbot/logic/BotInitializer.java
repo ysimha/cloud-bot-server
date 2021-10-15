@@ -39,10 +39,11 @@ public class BotInitializer {
 				state.setSignal(signal);
 				bot.setState(state);
 			})
-					//TODO FIXME maybe better to try order and receive error , than buying according to balance
+			//TODO FIXME maybe its better to try order and receive error , than buying according to balance
 			.flatMap(this::quoteAssetBalance)
 			.doOnError(err->
-					log.error("error trying to get account balance, "+err.getMessage()+botInstance.profileId()))
+					log.error("error trying to get account balance, "+err.getMessage()+botInstance.profileId())
+			)
 //					log.error("error trying to get account balance, retry ones if binance error -1021, "+err.getMessage()+botInstance.profileId()))
 					//TODO not tested if its a timeout issue
 					//FIXME removed retry, find a new API instead to do retry on error

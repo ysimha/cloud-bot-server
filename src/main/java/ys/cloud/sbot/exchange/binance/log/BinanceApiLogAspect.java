@@ -39,9 +39,14 @@ public class BinanceApiLogAspect {
 	    if (logUrl) {
 //			Object url = joinPoint.getArgs()[0];
 //			log.info(url.toString());
-			log.debug("API CALL ["+annotation.weight()+"]" + type+ " "+ method.getName());
+			log.debug("API CALL ["+annotation.weight()+"] " + type+ " "+ method.getName());
 		}
 
-		return joinPoint.proceed();
+		try {
+			return joinPoint.proceed();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 }

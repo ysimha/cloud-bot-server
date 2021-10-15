@@ -22,7 +22,7 @@ public class TestHelper {
 
     public static final String TEST_USER = "test-user@mail.com";
     public static final String TEST_PASSWORD = "test-password";
-    private static final ExchangeAccount TEST_EXCHANGE = ExchangeAccount.builder()
+    public static final ExchangeAccount TEST_EXCHANGE = ExchangeAccount.builder()
             .exchange("binance").publicKey("public").secret("secret").build();
 
     @Autowired

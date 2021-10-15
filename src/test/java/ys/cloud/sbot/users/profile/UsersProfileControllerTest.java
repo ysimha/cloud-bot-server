@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -25,6 +26,7 @@ import static ys.cloud.sbot.TestHelper.TEST_USER;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+//@TestPropertySource(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration")
 class UsersProfileControllerTest {
 
     @Autowired
@@ -47,8 +49,8 @@ class UsersProfileControllerTest {
                 .baseUrl("http://localhost:" + port)
                 .build();
 
-        testHelper.createUser(null,null);
-        testHelper.createUserProfile(null);
+        testHelper.createUser();
+        testHelper.createUserProfile();
     }
 
     @Test

@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.GET, "/*/public/**").permitAll() /*testing*/
-                .pathMatchers(HttpMethod.POST, "/signals/simple").permitAll()/*TODO FIXME*/
+                .pathMatchers(HttpMethod.POST, "/signals/simple").permitAll()/*TODO FIXME create special account for signal request*/
                 .pathMatchers(HttpMethod.GET, "/auth/user").permitAll() /*login*/
                 .pathMatchers(HttpMethod.POST, "/auth/register").permitAll() /*login*/
 

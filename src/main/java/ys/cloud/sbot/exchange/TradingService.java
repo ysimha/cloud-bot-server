@@ -32,7 +32,7 @@ public class TradingService {
 	private TradingApi getApiService(ExchangeAccount exchangeAccount) {
 		switch (exchangeAccount.getExchange().toUpperCase()) {
 			case "BINANCE":
-			case "BINANCE-US":
+			case "BINANCE_US":
 				return binanceTradingService;
 		default:
 			throw new RuntimeException(exchangeAccount.getExchange());

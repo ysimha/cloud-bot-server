@@ -58,8 +58,6 @@ public class BinanceTickerService implements TickerService {
 		
 		this.tickerMap = newMap;
 
-//		newMap.entrySet().forEach(System.out::println);
-		
 		if (books.length!= prices.length) {
 			log.warn("books and prices size not equal !  prices size: "+prices.length+", books size: "+books.length);
 		}

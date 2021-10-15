@@ -3,10 +3,8 @@ package ys.cloud.sbot.exchange;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ys.cloud.sbot.exchange.binance.BinancePriceData;
-import ys.cloud.sbot.exchange.binance.BinancePublicService;
+import ys.cloud.sbot.exchange.binance.BinancePriceDataService;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +15,7 @@ import static org.mockito.Mockito.when;
 class PriceDataServiceTest {
 
     @Mock
-    BinancePriceData binancePriceData;
+    BinancePriceDataService binancePriceData;
     @InjectMocks
     PriceDataService priceDataService ;
 

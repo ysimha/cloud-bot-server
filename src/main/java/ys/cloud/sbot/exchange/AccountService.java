@@ -41,7 +41,7 @@ public class AccountService {
 	private AccountApi getApiService(ExchangeAccount exchangeAccount) {
 		switch (exchangeAccount.getExchange().toUpperCase()) {
 			case "BINANCE":
-			case "BINANCE-US":
+			case "BINANCE_US":
 				return binanceAccountService;
 		default:
 			throw new RuntimeException(exchangeAccount.getExchange());

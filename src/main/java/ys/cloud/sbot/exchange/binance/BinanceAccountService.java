@@ -101,7 +101,7 @@ public class BinanceAccountService implements AccountApi {
 		switch (exchangeAccount.getExchange().toUpperCase()) {
 			case "BINANCE":
 				return HttpBinance.BASE_URL+endPoint;
-			case "BINANCE-US":
+			case "BINANCE_US":
 				return HttpBinance.BASE_URL_US+endPoint;
 			default:
 				throw new RuntimeException("can't url for: "+exchangeAccount.getExchange());

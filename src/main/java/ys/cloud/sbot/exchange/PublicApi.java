@@ -1,16 +1,13 @@
 package ys.cloud.sbot.exchange;
 
 import reactor.core.publisher.Mono;
-import ys.cloud.sbot.exchange.binance.model.BookTicker;
-import ys.cloud.sbot.exchange.binance.model.ChartData;
-import ys.cloud.sbot.exchange.binance.model.ExchangeInfo;
-import ys.cloud.sbot.exchange.binance.model.TickerPrice;
-
-import java.util.List;
+import ys.cloud.sbot.exchange.binance.model.*;
 
 public interface PublicApi {
 
-	public Mono<BookTicker[]> getBookTicker();
+    Mono<Ticker24hr[]> getTicker24Hr();
+
+    public Mono<BookTicker[]> getBookTicker();
 
 	public Mono<TickerPrice[]> getPrice();
 
