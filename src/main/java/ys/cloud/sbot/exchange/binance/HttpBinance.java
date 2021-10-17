@@ -155,6 +155,10 @@ public class HttpBinance {
 		try {
 			APIError error = new ObjectMapper().readValue( e.getResponseBodyAsString()  , APIError.class); 
 			BinanceApiException ex = new BinanceApiException(e,error,url);
+			if (ex.getError().code.equals(429)){
+				log.error("exit. code 429 - Too Many Requests.  "+e);
+				System.exit(429);
+			}
 			return ex;
 		} catch (Exception e1) {
 			e1.printStackTrace();

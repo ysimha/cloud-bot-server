@@ -15,50 +15,50 @@ import java.util.function.Consumer;
 @Slf4j
 public class BotTerminator {
 
-    @Autowired  PositionRecorder positionRecorder;
-    @Autowired  BotInstanceMongoOps botInstanceMongoOps;
-    @Autowired  BotInstanceRepository botInstanceRepository;
+    @Autowired
+    PositionRecorder positionRecorder;
+    @Autowired
+    BotInstanceMongoOps botInstanceMongoOps;
+    @Autowired
+    BotInstanceRepository botInstanceRepository;
 
     public Consumer<? super BotInstance> endSession() {
 
         return botInstance -> {
 
-                    recordAndEndSession()
+            recordAndEndSession()
 
-                    .then( BotInstance.fromContext().doOnNext(botInstanceRepository::save) )
+                    .then(BotInstance.fromContext().doOnNext(botInstanceRepository::save))
                     //release method always
-                    .doFinally( event-> botInstanceMongoOps.releaseFormMethod(botInstance.getId()).subscribe())
-
-                    .subscriberContext( botInstance::subscriberContext)
-
+                    .doFinally(event -> botInstanceMongoOps.releaseFormMethod(botInstance.getId()).subscribe())
+                    .contextWrite(botInstance::subscriberContext)
                     .subscribe(
-                            bot->   log.debug("bot: "+ bot.getProfileId()+", end session successfully.  instance: "+bot.getProfileId()),
-                            err-> {
-                                log.error("bot: "+ botInstance.getProfileId()+",ERROR while end session  .  instance: "+botInstance.getProfileId(),err);
-                                },
-                            ()->  log.debug("++++ bot: "+ botInstance.getProfileId()+", end session  complete. ")
+                            bot -> log.debug("bot: " + bot.getProfileId() + ", end session successfully.  instance: " + bot.getProfileId()),
+                            err -> {
+                                log.error("bot: " + botInstance.getProfileId() + ",ERROR while end session  .  instance: " + botInstance.getProfileId(), err);
+                            },
+                            () -> log.debug("++++ bot: " + botInstance.getProfileId() + ", end session  complete. ")
                     );
         };
     }
-
 
 
     public Mono<BotInstance> recordAndEndSession() {
 
         return BotInstance.fromContext()
 
-                .doOnNext(bot->log.debug("save position data and close position: "+  bot.botInfo()))
+                .doOnNext(bot -> log.debug("save position data and close position: " + bot.botInfo()))
                 .flatMap(positionRecorder::saveTradingSession)
-                .doOnError(err->log.error("error while trying to save trading session data.",err))
+                .doOnError(err -> log.error("error while trying to save trading session data.", err))
                 .onErrorReturn(TradingSessionRecord.builder().build())
-                .flatMap(r->BotInstance.fromContext())
-                .flatMap( bot->{
+                .flatMap(r -> BotInstance.fromContext())
+                .flatMap(bot -> {
                     if (bot.isLoop()) {
                         bot.setState(null);
-                        log.debug("start bot instance again: "+  bot.botInfo());
+                        log.debug("start bot instance again: " + bot.botInfo());
                         return botInstanceMongoOps.saveState(bot).thenReturn(bot);
-                    }else {
-                        log.debug("delete bot instance: "+  bot.botInfo());
+                    } else {
+                        log.debug("delete bot instance: " + bot.botInfo());
                         return botInstanceRepository.delete(bot).then(Mono.empty());
                     }
                 });

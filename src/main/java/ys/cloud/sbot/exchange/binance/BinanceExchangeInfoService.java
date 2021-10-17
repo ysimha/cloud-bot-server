@@ -31,10 +31,14 @@ public class BinanceExchangeInfoService {
 		loadExchangeInfo();
 	}
 
-	public Symbol resolveSymbol(String baseAsset,String quoteAsset) {
-		return binanceSymbols.get(baseAsset+quoteAsset);
+//	public Symbol resolveSymbol(String baseAsset,String quoteAsset) {
+//		return resolveSymbol(baseAsset+quoteAsset);
+//	}
+
+	public Symbol resolveSymbol(String symbolName) {
+		return binanceSymbols.get(symbolName);
 	}
-	
+
 	@Scheduled(fixedRate = 600000) //call it every 10 minutes
 	private void loadExchangeInfo() {
 		if ("test".equals(activeProfile))return ;

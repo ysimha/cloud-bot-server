@@ -13,21 +13,18 @@ import ys.cloud.sbot.signals.Signal;
 @AllArgsConstructor
 public class State {
 
+	private String symbol;
+	private Signal signal;
+
 	private double currentAmount = 0.0;
-	private Symbol symbol;	
 	private Position position =null;
 	
 	private NewOrderResponse openBuyOrder ;
 	private NewOrderResponse openSellOrder ;
-	
-	boolean costAverage = false;
-	boolean costAverageArm = false ;
-	
-	boolean lastTargetTrailing = false;
-	
+
+	private boolean costAverage = false;
+	private boolean costAverageArm = false ;
+	private boolean lastTargetTrailing = false;
 	private String fileEntry;
-	
-	private Signal signal;
-	
 	private boolean canUpdate = true;
 }

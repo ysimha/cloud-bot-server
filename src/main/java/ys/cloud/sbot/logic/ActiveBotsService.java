@@ -28,31 +28,28 @@ public class ActiveBotsService {
 	@Autowired BinanceTickerService 		tickerService;
 
 	public void onSignal(Signal signal) {
-		
-		log.info("on signal : "+ signal);
-		if ( !signal.getQuoteAsset().toUpperCase().equals("USDT") ){ //TODO add support to other quote assets
+
+		log.info("on signal : " + signal);
+		if (!signal.getQuoteAsset().toUpperCase().equals("USDT")) { //TODO add support to other quote assets
 			log.error("sorry, only USDT quote asset is supported at this time :-(");
 			return;
 		}
+		Symbol symbol = binanceSymbolInfoService.resolveSymbol(signal.getBaseAsset() + signal.getQuoteAsset());
 
-		Symbol symbol = binanceSymbolInfoService.resolveSymbol( signal.getBaseAsset(),signal.getQuoteAsset());
-		if( symbol==null ) {
-			log.error(signal.getQuoteAsset()+"-"+signal.getBaseAsset()+" not found...");
+		if (symbol == null) {
+			log.error(signal.getQuoteAsset() + "-" + signal.getBaseAsset() + " not found...");
 			return;
 		}
 
-		log.info("on signal symbol: "+ symbol.getSymbol());
-
 		botInstanceMongoOps.findStandbyIds()
-								.publishOn(Schedulers.parallel())
-								.flatMap( id-> botInstanceMongoOps.takeForMethod("onSignal", id))
-								.subscribe(
-											botInitializer.initialize(signal, symbol),
-											err->log.error("error initializing bot instances on signal",err),
-											()->log.info("initializing bot instances complete")
-										);
-		
-		log.info("on signal exit, symbol: "+ symbol.getSymbol());
+				.publishOn(Schedulers.parallel())
+				.flatMap(id -> botInstanceMongoOps.takeForMethod("onSignal", id))
+				.subscribe(
+						botInitializer.initialize(signal, symbol.getSymbol()),
+						err -> log.error("error initializing bot instances on signal", err),
+						() -> log.info("initializing bot instances complete"));
+
+		log.info("on signal exit, symbol: " + symbol);
 	}
 
 	//TODO FIXME add error field to bot instance and recover from errors here
@@ -72,12 +69,10 @@ public class ActiveBotsService {
 		botInstanceMongoOps.findActiveIds()//.log()
 
 				.publishOn(Schedulers.parallel())
-
 				.flatMap( id-> botInstanceMongoOps.takeForMethod("botLoop", id))
-
 				.subscribe(
 				        bot-> {
-				        	log.debug("\n\n>>>> Start BOT Loop <<<<  processing bot: "+bot.profileId());
+				        	log.debug(">>>> Start BOT Loop <<<<  processing bot: "+bot.profileId());
 
 							State state = bot.getState();
 							updateLastTicker(state);
@@ -90,10 +85,10 @@ public class ActiveBotsService {
                                 botTerminator.endSession().accept(bot);
 
                             }else {
-                            	log.warn("botMaintenance.maintenance");
+                            	log.debug("botMaintenance.maintenance");
                                 botMaintenance.maintenance().accept(bot);
                             }
-							log.warn(">>>> END BOT Loop <<<<  bot: "+bot.profileId());
+							log.debug(">>>> END BOT Loop <<<<  bot: "+bot.profileId());
 						},
 						err->log.error(">>>> error  bots loop ",err),
 
@@ -103,9 +98,8 @@ public class ActiveBotsService {
 
 	private void updateLastTicker(State state) {
 		log.debug("State. "+state);
-		Position position = state.getPosition();
-		Ticker ticker = tickerService.getTicker(state.getSymbol().getSymbol());
-		position.updateTicker(ticker);
+		Ticker ticker = tickerService.getTicker(state.getSymbol());
+		state.getPosition().updateTicker(ticker);
 	}
 }
 

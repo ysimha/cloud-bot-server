@@ -16,8 +16,6 @@ import java.util.List;
 @Builder
 public class TradingSessionRecord {
 
-//	public TradingSessionRecord(){};
-	
 	@Id
 	private String id;
 	private String profileId;

@@ -2,15 +2,12 @@ package ys.cloud.sbot.exchange;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Mono;
 import ys.cloud.sbot.exchange.binance.BinancePublicService;
 import ys.cloud.sbot.exchange.binance.model.BookTicker;
 import ys.cloud.sbot.exchange.binance.model.ChartData;
 import ys.cloud.sbot.exchange.binance.model.ExchangeInfo;
 import ys.cloud.sbot.exchange.binance.model.TickerPrice;
-
-import java.util.List;
 
 @Service
 public class PublicService  {
@@ -34,10 +31,11 @@ public class PublicService  {
 
 	private PublicApi getApiService(String exchange) {
 		switch (exchange.toUpperCase()) {
-		case "BINANCE":
-			return binancePublicService;
-		default:
-			throw new RuntimeException(exchange);
+			case "BINANCE":
+			case "BINANCE_US":
+				return binancePublicService;
+			default:
+				throw new RuntimeException(exchange);
 		}
 	}
 }

@@ -9,6 +9,7 @@ import ys.cloud.sbot.exceptions.SellOrderException;
 import ys.cloud.sbot.exchange.AccountService;
 import ys.cloud.sbot.exchange.Ticker;
 import ys.cloud.sbot.exchange.TradeRecord;
+import ys.cloud.sbot.exchange.binance.BinanceExchangeInfoService;
 import ys.cloud.sbot.exchange.binance.BinanceTickerService;
 import ys.cloud.sbot.exchange.binance.enums.OrderStatus;
 import ys.cloud.sbot.exchange.binance.errors.BinanceApiException;
@@ -31,6 +32,8 @@ public class BotOperationsService {
     @Autowired Trader trader;
     @Autowired AccountService accountService;
     @Autowired BinanceTickerService tickerService;
+    @Autowired
+    BinanceExchangeInfoService binanceExchangeInfoService;
 
     public Mono<NewOrderResponse> placeMarketBuy(BotInstance bot) {
 
@@ -69,12 +72,13 @@ public class BotOperationsService {
                             log.debug("buy complete. executedQty=" + df(trade.getQty()) + ", price=" + df(trade.getPrice()) + bot.profileId());
                             State state = bot.getState();
                             Position position = state.getPosition();
-                            if ( position == null ) {
-                                position = new Position(trade.getPrice(), bot.getDefaultStoploss(), state);
+                            if (position == null) {
+                                Symbol symbol = binanceExchangeInfoService.resolveSymbol(state.getSymbol());
+                                position = new Position(trade.getPrice(), bot.getDefaultStoploss(), state, symbol);
                                 state.setPosition(position);
                             }
                             position.getBuyTrades().add(trade);
-                            position.setLastTicker(tickerService.getTicker(state.getSymbol().getSymbol()));
+                            position.setLastTicker(tickerService.getTicker(state.getSymbol()));
                             log.debug("new position " + position + bot.profileId());
                         }
                 );
@@ -82,7 +86,7 @@ public class BotOperationsService {
 
     public Mono<TradeRecord> tradeForOrder(final Long orderId) {
         return BotInstance.fromContext()
-                .flatMap(bot -> accountService.myTrades(bot.getExchangeAccount(), bot.getState().getSymbol().getSymbol()))
+                .flatMap(bot -> accountService.myTrades(bot.getExchangeAccount(), bot.getState().getSymbol()))
                 .map(trades ->
                         trades.stream().filter(t -> t.getOrderId().equals(orderId)).collect(Collectors.toList())
 
@@ -95,44 +99,45 @@ public class BotOperationsService {
         State state = bot.getState();
         Double limit = state.getPosition().nextTarget();
         Double quantity = state.getPosition().nextTargetQuantityToSell();
-        Symbol symbol = state.getSymbol();
 
-        log.debug("place sell limit order. limit= " + df(limit) + ", quantity: " + df(quantity) + bot.profileId());
+        log.debug("place sell limit order for "+state.getSymbol()+". limit= " + df(limit) + ", quantity: " + df(quantity) + bot.profileId());
 
         if ( state.getPosition() != null && state.getOpenSellOrder() == null ) {
 
-            return accountService.getAvailableBalance(bot.getExchangeAccount(), symbol.getBaseAsset())
+            String baseAsset = state.getSignal().getBaseAsset();
 
+            return accountService.getAvailableBalance(bot.getExchangeAccount(), baseAsset)
                     .flatMap(balance -> {
                         if ( balance == 0.0 ) {
                             log.warn("balance is 0 , waiting a second and rechecking balance");
                             return Mono.delay(Duration.ofSeconds(1))
                                     .flatMap(d ->
-                                            accountService.getAvailableBalance(bot.getExchangeAccount(), symbol.getBaseAsset())
+                                            accountService.getAvailableBalance(bot.getExchangeAccount(), baseAsset)
                                     );
                         }
                         return Mono.just(balance);
                     })
                     .doOnNext(balance -> {
-                        log.debug("current free " + symbol.getBaseAsset() + " balance is " + balance + bot.profileId());
+                        log.debug("current free " + baseAsset + " balance is " + balance + bot.profileId());
                     })
                     .flatMap(balance ->
-                            trader.sellOrderLimit(bot.getExchangeAccount(), symbol, limit, Math.min(quantity, balance))
+                            trader.sellOrderLimit( bot.getExchangeAccount(), state.getSymbol(), limit, Math.min(quantity, balance))
                     )
-                    .doOnNext(response -> {
-                        log.debug("new Sell Order respone: " + response + bot.profileId());
+                    .doOnNext( response -> {
+                        log.debug("new Sell Order response: " + response + bot.profileId());
                         state.setOpenSellOrder(response);
                         log.debug("state openSellOrder = " + state.getOpenSellOrder());
                     });
         } else {
             //return error
-            return Mono.error(new SellOrderException("no position or sell order exsist"));
+            return Mono.error(new SellOrderException("no position or sell order exist"));
         }
     }
 
     public Mono<GetOrderResponse> checkSellOrder(BotInstance bot) {
         State state = bot.getState();
-        String openSellOrder_uuid = state.getOpenSellOrder().getOrderId().toString();
+        final NewOrderResponse openSellOrder = state.getOpenSellOrder();
+        String openSellOrder_uuid = openSellOrder.getOrderId().toString();
         return trader.getOrder(bot.getExchangeAccount(), state.getSymbol(), openSellOrder_uuid);
     }
 
@@ -142,7 +147,7 @@ public class BotOperationsService {
                 .flatMap(bot -> {
 
                     State state = bot.getState();
-                    log.warn("[cancel open orders] - [" + state.getSymbol().getSymbol() + "] " + "attempt to cancel open orders" + bot.profileId());
+                    log.warn("[cancel open orders] - [" + state.getSymbol() + "] " + "attempt to cancel open orders" + bot.profileId());
 
                     if ( state.getOpenBuyOrder() != null ) {
                         log.warn("attempt to cancel buy order: " + state.getOpenBuyOrder());
@@ -158,23 +163,30 @@ public class BotOperationsService {
                 });
     }
 
-    private Mono<CancelResponse> cancelOrder(BotInstance bot, Symbol symbol, String orderId) {
+    private Mono<CancelResponse> cancelOrder(BotInstance bot, String symbol, String orderId) {
+
         return trader.cancel(bot.getExchangeAccount(), symbol, orderId)
                 .onErrorResume(error -> {
+
                     log.error("Error on cancel, "+error.getMessage()+bot.profileId());
                     if ( error instanceof BinanceApiException ) {
+
                         log.error("Error on cancel, "+((BinanceApiException)error).getError().toString()+bot.profileId());
 //								BinanceApiException: 400 Bad Request, APIError(code=-2011, msg=UNKNOWN_ORDER)
 //		                        when getting binance api error.  need to check if order is full and resume
+
                         return trader.getOrder(bot.getExchangeAccount(), symbol, orderId)
                                 .map(orderResponse -> {
+
                                     log.warn("called get order after cancel order failed, response: "+orderResponse+bot.profileId());
                                     if ( orderResponse.getStatus().equals(OrderStatus.FILLED.name()) ||
                                             orderResponse.getStatus().equals(OrderStatus.CANCELED.name())   ) {
+
                                         log.error("order: "+orderId+", already FILLED or CANCELED, returning mockup cancel response."+bot.profileId());
                                         //order filled return mock response
                                         return CancelResponse.builder().build();
                                     } else {
+
                                         throw new LogicViolationException("Cancel order return with error: " + error +
                                                 ",  get order for order: " + orderId + " not filled:  response: "
                                                 + orderResponse + bot.profileId());
@@ -196,17 +208,16 @@ public class BotOperationsService {
 
         return BotInstance.fromContext()
                 .flatMap(c ->
-                        accountService.getAvailableBalance(bot.getExchangeAccount(), state.getSymbol().getBaseAsset())
+                        accountService.getAvailableBalance(bot.getExchangeAccount(), state.getSignal().getBaseAsset())
                 )
                 .doOnNext(balance ->
-                        log.warn("[" + state.getSymbol().getSymbol() + "] " +
+                        log.warn("[" + state.getSymbol() + "] " +
                                 "sell position - market sell order, account balance: " + balance + ", quantity to sell: " + quantity + bot.profileId()))
 
                 .flatMap(balance ->
                         trader.sellOrderMarket(bot.getExchangeAccount(), state.getSymbol(), Math.min(quantity, balance))
                 )
                 .doOnNext(orderResponse -> log.debug("sell position order response: " + orderResponse))
-
                 ;
     }
 
@@ -268,7 +279,7 @@ public class BotOperationsService {
     }
 
     private double checkBuyAmount(BotInstance bot, double buyAmount) {
-        String quoteAsset = bot.getState().getSymbol().getQuoteAsset();
+        String quoteAsset = bot.getState().getSignal().getQuoteAsset();
         //FIXME don't read balance from exchange to save time on the call
         //double balance = binanceAccountService.getBalance(quoteAsset).getBalance();
         double balance = bot.getState().getCurrentAmount();
@@ -308,5 +319,4 @@ public class BotOperationsService {
     private String df(double d) {
         return Double.toString(d);
     }
-
 }

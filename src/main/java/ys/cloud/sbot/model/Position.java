@@ -5,11 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import ys.cloud.sbot.exchange.Ticker;
 import ys.cloud.sbot.exchange.TradeRecord;
 import ys.cloud.sbot.exchange.binance.model.Filter;
+import ys.cloud.sbot.exchange.binance.model.Symbol;
 import ys.cloud.sbot.logic.Trader;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 @Data
 @ToString
@@ -20,8 +20,8 @@ import java.util.ListIterator;
 public class Position {
 
     private Integer id;
-	private List<TradeRecord> buyTrades = new LinkedList<TradeRecord>();
-	private List<TradeRecord> sellTrades = new LinkedList<TradeRecord>();
+	private List<TradeRecord> buyTrades = new LinkedList<>();
+	private List<TradeRecord> sellTrades = new LinkedList<>();
 	private Ticker lastTicker;
 
 	private boolean pastGain ;
@@ -35,32 +35,28 @@ public class Position {
 	private boolean useTrailingStoploss;
 
 	private double costAverage ;
-	private List<Double> targets = new LinkedList<Double>();
-//	private double target1 ;
-//	private double target2 ;
-//	private double target3 ;
-	
+	private List<Double> targets = new LinkedList<>();
+
 	private double stoplossAmount;
 	
-//	@Transient
 	private boolean lastTargetTrailing;
 
-	public Position(Double enterPrice, Double defaultStoploss, State state) {
-		this.initialize(enterPrice, defaultStoploss,state);
+	public Position(Double enterPrice, Double defaultStoploss, State state , Symbol symbol) {
+		this.initialize(enterPrice, defaultStoploss,state, symbol);
 	}
 	
-	public void initialize(Double enterPrice, Double defaultStoploss, State state) {
+	public void initialize(Double enterPrice, Double defaultStoploss, State state , Symbol symbol) {
 
 		double factor = defaultStoploss/100;
 
 		Double stop = enterPrice - (enterPrice * (factor)); 
 
-		Double t1 = enterPrice * 1.0135;
-		Double t2 = enterPrice * 1.02;
-		Double t3 = enterPrice + (enterPrice * ((factor*100)/100));
+		double t1 = enterPrice * 1.0135;
+		double t2 = enterPrice * 1.02;
+		double t3 = enterPrice + (enterPrice * ((factor*100)/100));
 
 		state.setCanUpdate(true);
-		Filter priceFilter = Trader.getPriceFilter(state.getSymbol());
+		Filter priceFilter = Trader.getPriceFilter(symbol);
 	
 		t1 = _d( Trader.round(t1, priceFilter));
 		if (t1 <= enterPrice) {
@@ -85,9 +81,7 @@ public class Position {
 		this.getTargets().add(t1);
         this.getTargets().add(t2);
         this.getTargets().add(t3);
-//		this.setTarget1(t1);
-//		this.setTarget2(t2);
-//		this.setTarget3(t3);
+
 		this.setCostAverage((stop+enterPrice)/2);
 		
 		this.setStoplossAmount(enterPrice-stop);
@@ -99,16 +93,6 @@ public class Position {
         }else{
 	        return Double.NaN;
         }
-//		switch (sellTrades.size()) {
-//		case 0:
-//			return target1;
-//		case 1:
-//			return target2;
-//		case 2:
-//			return target3;
-//		default:
-//			return Double.NaN;
-//		}
 	}
 	
 	public double nextTargetQuantityToSell() {
@@ -136,46 +120,40 @@ public class Position {
 			double newStoploss = ticker.getBid() - stoplossAmount;
 			this.stoploss = max(stoploss,newStoploss);
 			if (this.stoploss != lastStoploss) {
-//				System.out.print(COLOR(154));
 				log.debug("update stop loss. old value: "+lastStoploss + ", new value: "+this.stoploss);
-//				System.out.print(RESET);
 			}
 		}
 	}
 	
-	public void updateStops() {
-		log.info("update stops values");
-		this.stoploss *= 1.001;
-		this.costAverage *= 1.001;
-
-        for (final ListIterator<Double> i = this.targets.listIterator(); i.hasNext();) {
-            final Double target = i.next();
-            i.set(target*0.999);
-        }
-
-//		this.target1 *= 0.999;
-//		this.target2 *= 0.999;
-//		this.target3 *= 0.999;
-	}
+//	public void updateStops() {
+//		log.info("update stops values");
+//		this.stoploss *= 1.001;
+//		this.costAverage *= 1.001;
+//
+//        for (final ListIterator<Double> i = this.targets.listIterator(); i.hasNext();) {
+//            final Double target = i.next();
+//            i.set(target*0.999);
+//        }
+//	}
 	
-	public double percentChange() {
-		return (( lastTicker.getLast()/avePriceEnter()) *100.0 )-100;
-	}
+//	public double percentChange() {
+//		return (( lastTicker.getLast()/avePriceEnter()) *100.0 )-100;
+//	}
 	
-	public double avePriceEnter() {
-		return totalInvested() / totalQuantityBuy();
-	}
+//	public double avePriceEnter() {
+//		return totalInvested() / totalQuantityBuy();
+//	}
 
 	public double totalInvested() {
 		return buyTrades.stream().mapToDouble(t->  t.getQty() * t.getPrice() ).sum();
 	}
 	
 	private double totalQuantityBuy() {
-		return buyTrades.stream().mapToDouble(t-> t.getQty()).sum();
+		return buyTrades.stream().mapToDouble(TradeRecord::getQty).sum();
 	}
 	
 	private double totalQuantitySold() {
-		return sellTrades.stream().mapToDouble(t-> t.getQty()).sum();
+		return sellTrades.stream().mapToDouble(TradeRecord::getQty).sum();
 	}
 	
 	public double totalQuantity() {
