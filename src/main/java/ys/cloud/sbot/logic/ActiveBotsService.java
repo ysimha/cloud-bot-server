@@ -30,7 +30,7 @@ public class ActiveBotsService {
 	public void onSignal(Signal signal) {
 
 		log.info("on signal : " + signal);
-		if (!signal.getQuoteAsset().toUpperCase().equals("USDT")) { //TODO add support to other quote assets
+		if (!signal.getQuoteAsset().equalsIgnoreCase("USDT")) { //TODO add support to other quote assets
 			log.error("sorry, only USDT quote asset is supported at this time :-(");
 			return;
 		}

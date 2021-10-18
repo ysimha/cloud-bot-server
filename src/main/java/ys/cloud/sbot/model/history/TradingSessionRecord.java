@@ -3,6 +3,7 @@ package ys.cloud.sbot.model.history;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -23,10 +24,8 @@ public class TradingSessionRecord {
 	@CreatedDate
 	private LocalDateTime createdDate;
 
-//	@Builder.Default
-    private List<TradeData> buyTrades ;//= new ArrayList<TradeData>();
-//	@Builder.Default
-    private List<TradeData> sellTrades ;//= new ArrayList<TradeData>();
+    private List<TradeData> buyTrades ;
+    private List<TradeData> sellTrades ;
     
 	private String source;
 	private String symbol;
@@ -51,4 +50,5 @@ public class TradingSessionRecord {
 
 	private Date timeStart;
 	private Date timeEnd;
+
 }

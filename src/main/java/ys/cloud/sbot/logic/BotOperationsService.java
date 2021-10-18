@@ -86,11 +86,10 @@ public class BotOperationsService {
 
     public Mono<TradeRecord> tradeForOrder(final Long orderId) {
         return BotInstance.fromContext()
-                .flatMap(bot -> accountService.myTrades(bot.getExchangeAccount(), bot.getState().getSymbol()))
-                .map(trades ->
-                        trades.stream().filter(t -> t.getOrderId().equals(orderId)).collect(Collectors.toList())
-
-                ).map(this::consolidateTrades);
+            .flatMap(bot -> accountService.myTrades(bot.getExchangeAccount(), bot.getState().getSymbol()))
+            .map(trades ->
+                    trades.stream().filter(t -> t.getOrderId().equals(orderId)).collect(Collectors.toList())
+            ).map(this::consolidateTrades);
     }
 
 

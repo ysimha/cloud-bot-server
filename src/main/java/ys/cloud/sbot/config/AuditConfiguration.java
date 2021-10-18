@@ -1,10 +1,18 @@
 package ys.cloud.sbot.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.CustomConversions;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
-@EnableMongoAuditing
+//@EnableMongoAuditing
+//@EnableReactiveMongoAuditing
 public class AuditConfiguration {
 
 //    @Bean

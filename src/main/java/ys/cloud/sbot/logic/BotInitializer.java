@@ -33,9 +33,8 @@ public class BotInitializer {
 			log.debug("@ Start initialize :" + botInstance.profileId());
 
 			BotInstance.fromContext()
-					.doOnNext( bot -> {
-						bot.setState(createState(signal, symbol));
-					})
+
+					.doOnNext( bot -> bot.setState(new State(signal, symbol)))
 					//TODO FIXME maybe its better to try order and receive error , than buying according to balance
 					.flatMap( this::quoteAssetBalance )
 					.doOnError(err ->
@@ -49,12 +48,14 @@ public class BotInitializer {
 //			.doOnError(err->
 //							log.error("error trying to get account balance AFTER retry ones."+err.getMessage()+botInstance.profileId()))
 					.flatMap( this::setCurrentAmount )
+
 					.flatMap( botOperationsService::placeMarketBuy )
-					.then(BotInstance.fromContext()
+					.then( BotInstance.fromContext()
 							.flatMap( botInstanceMongoOps::saveState )
 							.flatMap( r -> BotInstance.fromContext())
 
 					).doOnNext( bot -> {
+						//TODO check if cleanup is needed
 						if (!bot.getState().getOpenBuyOrder().getStatus().equals(OrderStatus.FILLED.name())) {
 							throw new BuyOrderException("market order return not " + OrderStatus.FILLED.name() + bot.getProfileId());
 						}
@@ -73,25 +74,16 @@ public class BotInitializer {
 					.contextWrite( initContext(botInstance))
 					.subscribe(
 							bot -> log.debug("bot: " + bot.getProfileId() + ", initialize successfully.  instance: " + bot.getProfileId()),
-							err -> {
-								log.error("bot: " + botInstance.getProfileId() + ",ERROR while initialize .  instance: " + botInstance.getProfileId(), err);
-							},
+							err -> log.error("bot: " + botInstance.getProfileId() + ",ERROR while initialize .  instance: " + botInstance.getProfileId(), err),
 							() -> log.debug("++++ bot: " + botInstance.getProfileId() + ", initialize complete. ")
 					);
 		};
 	}
 
-	private State createState(Signal signal, String symbol) {
-		State state = new State();
-		state.setSymbol(symbol);
-		state.setSignal(signal);
-		return state;
-	}
-
 	private Function<Context, Context> initContext(BotInstance botInstance) {
 		//FIXME add also account balances to save api call while checking base and quote balance
 		return context->
-			context.putAll(botInstance.subscriberContext(context));
+				context.putAll(botInstance.subscriberContext(context));
 	}
 
 	private Mono<Double> quoteAssetBalance(BotInstance bot) {

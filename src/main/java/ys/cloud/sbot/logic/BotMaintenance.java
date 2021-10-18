@@ -68,13 +68,14 @@ public class BotMaintenance {
     }
 
     private Mono<TradeRecord> checkFullSellOrder(BotInstance botInstance) {
+
         return BotInstance.fromContext()
                 .flatMap(botOperationsService::checkSellOrder)
-                .flatMap( order-> {
+                .flatMap(order -> {
                     if (order.getStatus().equals(OrderStatus.FILLED.name())) {
-                        log.debug("sell order "+ order.getOrderId()+", is filled. "+ order + botInstance.profileId());
+                        log.debug("sell order " + order.getOrderId() + ", is filled. " + order + botInstance.profileId());
                         return botOperationsService.tradeForOrder(order.getOrderId());
-                    }else {
+                    } else {
                         return Mono.empty();
                     }
                 });

@@ -42,32 +42,30 @@ public class APIBotInstanceService {
 	}
 
 	private Mono<BotInstance> initInstance(UserProfile userProfile, BotActivation activation) {
-		
-		Optional<ExchangeAccount> 	exchangeAccount = 	userProfile.getExchangeAccounts()
-				.stream().filter(ea->ea.getExchange().equals(activation.getExchange())).findFirst();
-		
-		log.debug("init bot instance. user profile: "+userProfile+", activation: "+activation);
-		
-		if ( exchangeAccount.isPresent()) {
-			
+
+		log.debug("init bot instance. user profile: " + userProfile + ", activation: " + activation);
+
+		Optional<ExchangeAccount> exchangeAccount = userProfile.getExchangeAccounts()
+				.stream().filter(ea -> ea.getExchange().equals(activation.getExchange())).findFirst();
+
+		if (exchangeAccount.isPresent()) {
 			return botConfigRepository.findById(activation.getBotConfigId())
-					.switchIfEmpty(Mono.error(new ResourceNotFoundException("bot config for id: "+activation.getBotConfigId()+ " not found")))
-					.doOnNext( bc-> validBotConfig(userProfile,bc))
-					.map( config->
-						BotInstance.builder()
-						.defaultAmount(config.getDefaultAmount())
-						.defaultStoploss(config.getStoploss())
-						.exchangeAccount(exchangeAccount.get())
-						.profileId(userProfile.getId())
-						.name(activation.getName())
-						.loop(activation.isLoop())
-						.state(null)
-						.build()
+					.switchIfEmpty(Mono.error(new ResourceNotFoundException("bot config for id: " + activation.getBotConfigId() + " not found")))
+					.doOnNext(bc -> validBotConfig(userProfile, bc))
+					.map(config ->
+							BotInstance.builder()
+									.defaultAmount(config.getDefaultAmount())
+									.defaultStoploss(config.getStoploss())
+									.exchangeAccount(exchangeAccount.get())
+									.profileId(userProfile.getId())
+									.name(activation.getName())
+									.loop(activation.isLoop())
+									.state(null)
+									.build()
 					)
 					.flatMap(botInstanceRepository::insert);
-
-		}else {
-			throw new UnsupportedArgumentException("can not create bot instance for actication parameters: "+activation+", user prfile: "+userProfile);
+		} else {
+			throw new UnsupportedArgumentException("can not create bot instance for activation parameters: " + activation + ", user profile: " + userProfile);
 		}
 	}
 

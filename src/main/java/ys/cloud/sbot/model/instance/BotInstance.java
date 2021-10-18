@@ -45,7 +45,7 @@ public class BotInstance {
 		return Mono.subscriberContext().map(ctx-> ctx.get(ContextKeys.BOT));
 	}
 	
-	public  Context subscriberContext(Context ctx) {
+	public Context subscriberContext(Context ctx) {
 		return ctx.put(ContextKeys.BOT, this);
 	}
 }

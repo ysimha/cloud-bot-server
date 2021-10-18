@@ -3,6 +3,6 @@ curl POST http://localhost:8098/signals/simple -v -H 'Content-Type: application/
   -d '
     {
         "quoteAsset": "USDT",
-         "baseAsset": "ETH"
+         "baseAsset": "SHIB"
     }
 ' /

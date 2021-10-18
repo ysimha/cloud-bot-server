@@ -24,9 +24,10 @@ public class BotInstanceMongoOps {
 	public Mono<UpdateResult> saveState( BotInstance botInstance ){
 
 		log.debug("save state: "+botInstance.getState());
+
 		Query query = Query.query(Criteria.where("id").is(botInstance.getId()));
 		Update update = new Update().set("state", botInstance.getState());
-		
+
 		return reactiveMongoTemplate.updateFirst(query, update, BotInstance.class)
 				.doOnNext(r-> log.debug("save state result: "+r) );
 	}
